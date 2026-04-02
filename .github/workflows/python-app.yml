@@ -1,0 +1,45 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            output: jogo.exe
+            asset_name: jogo-windows.exe
+          - os: ubuntu-latest
+            output: jogo
+            asset_name: jogo-linux
+          - os: macos-latest
+            output: jogo
+            asset_name: jogo-mac
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Instalar dependências
+        run: pip install pyinstaller pygame  # suas libs aqui
+
+      - name: Gerar executável
+        run: pyinstaller --onefile --windowed seu_jogo.py
+
+      - name: Renomear executável
+        shell: bash
+        run: mv dist/${{ matrix.output }} dist/${{ matrix.asset_name }}
+
+      - name: Upload para a Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ matrix.asset_name }}
