@@ -4,8 +4,9 @@ import pygame
 import os
 
 # Set dummy video driver for headless testing before pygame init
-# Sometimes SDL_VIDEODRIVER isn't enough depending on OS, but we also mock display
 os.environ["SDL_VIDEODRIVER"] = "dummy"
+# Set dummy audio driver for headless testing to avoid ALSA errors
+os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 @pytest.fixture(scope="session", autouse=True)
 def pygame_setup():
