@@ -1,3 +1,5 @@
+# .github/workflows/release.yml
+
 name: Build and Release
 
 on:
@@ -6,19 +8,39 @@ on:
       - "v*"
 
 jobs:
+  # Roda os testes antes de buildar
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar testes
+        run: pytest --cov
+
+  # Builda para os 3 sistemas em paralelo (só roda se os testes passarem)
   build:
+    needs: test
     strategy:
       matrix:
         include:
           - os: windows-latest
-            output: jogo.exe
-            asset_name: jogo-windows.exe
+            output: main.exe
+            asset_name: python-pygame-runner-windows.exe
+
           - os: ubuntu-latest
-            output: jogo
-            asset_name: jogo-linux
+            output: main
+            asset_name: python-pygame-runner-linux
+
           - os: macos-latest
-            output: jogo
-            asset_name: jogo-mac
+            output: main
+            asset_name: python-pygame-runner-mac
 
     runs-on: ${{ matrix.os }}
 
@@ -29,17 +51,28 @@ jobs:
         with:
           python-version: "3.14"
 
-      - name: Instalar dependências
-        run: pip install pyinstaller pygame  # suas libs aqui
+      # SDL2 é necessário para o pygame-ce no Linux
+      - name: Instalar libs SDL2 (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev
+
+      - name: Instalar dependências de build
+        run: pip install pyinstaller pygame-ce==2.5.7
 
       - name: Gerar executável
-        run: pyinstaller --onefile --windowed seu_jogo.py
+        run: pyinstaller --onefile --windowed main.py
 
       - name: Renomear executável
         shell: bash
         run: mv dist/${{ matrix.output }} dist/${{ matrix.asset_name }}
 
-      - name: Upload para a Release
+      - name: Publicar na Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/${{ matrix.asset_name }}
