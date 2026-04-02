@@ -1,5 +1,3 @@
-# .github/workflows/release.yml
-
 name: Build and Release
 
 on:
@@ -8,7 +6,6 @@ on:
       - "v*"
 
 jobs:
-  # Roda os testes antes de buildar
   test:
     runs-on: ubuntu-latest
     steps:
@@ -16,7 +13,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: "3.13"
 
       - name: Instalar dependências
         run: pip install -r requirements.txt
@@ -24,7 +21,6 @@ jobs:
       - name: Rodar testes
         run: pytest --cov
 
-  # Builda para os 3 sistemas em paralelo (só roda se os testes passarem)
   build:
     needs: test
     strategy:
@@ -49,18 +45,20 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: "3.13"
 
-      # SDL2 é necessário para o pygame-ce no Linux
       - name: Instalar libs SDL2 (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            pkg-config \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
-            libsdl2-ttf-dev
+            libsdl2-ttf-dev \
+            libsdl2-gfx-dev \
+            python3-dev
 
       - name: Instalar dependências de build
         run: pip install pyinstaller pygame-ce==2.5.7
