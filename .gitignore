@@ -1,0 +1,20 @@
+# Python / Testing Context
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual Environments
+.venv/
+env/
+venv/
+
+# Local Saves / Ignored Data
+data/
+
+# Agent Context & Memory
+.agent/
+AGENTS.md
+GEMINI.md
+.gemini/
