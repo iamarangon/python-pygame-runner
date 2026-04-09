@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install system dependencies (headless display)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            libsdl2-dev \
+            libsdl2-mixer-dev \
+            libsdl2-image-dev \
+            libsdl2-ttf-dev \
+            xvfb
+
+      - name: Install Python dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests with coverage
+        run: |
+          xvfb-run --auto-servernum python -m pytest \
+            --cov=src \
+            --cov-report=term-missing \
+            --cov-fail-under=90 \
+            tests/
+
+      - name: Upload coverage report
+        if: matrix.python-version == '3.13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: .coverage
+          retention-days: 7

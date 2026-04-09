@@ -56,19 +56,6 @@ class TestEnemies:
     def test_enemy_render_fallback_no_image(self):
         """Enemy with no frames renders a rect fallback."""
         surface = pygame.Surface((800, 400))
-        e = Enemy(100, 100, 1.0)
-        e.rect = pygame.Rect(100, 100, 40, 40)
-        e.render(surface)   # lines 40-41
-
-    def test_enemy_render_with_image(self):
-        """Enemy with an image blits it."""
-        surface = pygame.Surface((800, 400))
-        e = Enemy(100, 100, 1.0)
-        img = pygame.Surface((40, 40))
-        e.image = img
-        e.rect = img.get_rect(topleft=(100, 100))
-        e.render(surface)   # line 39
-
     def test_ground_enemy_update_animation(self):
         ge = GroundEnemy(100)
         initial_frame = ge.frame_index

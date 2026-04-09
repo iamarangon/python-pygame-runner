@@ -82,5 +82,3 @@ class Player(pygame.sprite.Sprite):
             self.image = self.walk_frames[int(self.frame_index)]
             self.rect = self.image.get_rect(bottomleft=(self.rect.x, GROUND_Y))
 
-    def render(self, surface: pygame.Surface) -> None:
-        surface.blit(self.image, self.rect)

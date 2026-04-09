@@ -2,7 +2,7 @@
 import random
 import pygame
 from src.entities.enemies import GroundEnemy, FlyingEnemy
-from src.core.settings import SCREEN_WIDTH
+from src.core.settings import SCREEN_WIDTH, SPAWN_INTERVAL_P1, SPAWN_INTERVAL_P2, SPAWN_INTERVAL_P3
 
 PATTERNS: list[list[tuple[str, int]]] = [
     [("ground", 0)],
@@ -13,24 +13,14 @@ PATTERNS: list[list[tuple[str, int]]] = [
 ]
 
 class Spawner:
-    def __init__(self) -> None:
-        self.spawn_timer: int = 0
-        self.current_delay: int = 100
-        self.enemies: list = []
-
-    def reset(self) -> None:
-        self.enemies.clear()
-        self.spawn_timer = 0
-        self.current_delay = 100
-
-    def get_random_delay(self, phase: int) -> int:
+    def get_dynamic_interval(self, phase: int) -> int:
         if phase == 1:
-            return random.randint(120, 180)
+            return SPAWN_INTERVAL_P1
         elif phase == 2:
-            return random.randint(90, 140)
-        return random.randint(70, 110)
+            return SPAWN_INTERVAL_P2
+        return SPAWN_INTERVAL_P3
 
-    def spawn_pattern(self, phase: int) -> None:
+    def spawn(self, phase: int, group: pygame.sprite.Group) -> None:
         if phase == 1:
             idx = 0
         elif phase == 2:
@@ -42,22 +32,6 @@ class Spawner:
         for e_type, offset in PATTERNS[idx]:
             x_pos = base_x + offset
             if e_type == "ground":
-                self.enemies.append(GroundEnemy(x_pos))
+                group.add(GroundEnemy(x_pos))
             elif e_type == "fly":
-                self.enemies.append(FlyingEnemy(x_pos))
-
-    def update(self, phase: int, scroll_speed: float, dt: float) -> None:
-        self.spawn_timer += 1
-        if self.spawn_timer >= self.current_delay:
-            self.spawn_pattern(phase)
-            self.spawn_timer = 0
-            self.current_delay = self.get_random_delay(phase)
-
-        for enemy in self.enemies:
-            enemy.update(scroll_speed, dt)
-
-        self.enemies = [e for e in self.enemies if e.rect.right > 0]
-
-    def render(self, surface: pygame.Surface) -> None:
-        for enemy in self.enemies:
-            enemy.render(surface)
+                group.add(FlyingEnemy(x_pos))

@@ -1,0 +1,85 @@
+name: Release — Build Executables
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Gate — Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            libsdl2-dev libsdl2-mixer-dev \
+            libsdl2-image-dev libsdl2-ttf-dev xvfb
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests (must pass before build)
+        run: xvfb-run --auto-servernum python -m pytest --cov=src --cov-fail-under=90 tests/
+
+  build:
+    name: Build — ${{ matrix.os }}
+    needs: test
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: py-runner-windows.exe
+            exe_path: dist/py-runner.exe
+
+          - os: ubuntu-latest
+            artifact_name: py-runner-linux
+            exe_path: dist/py-runner
+
+          - os: macos-latest
+            artifact_name: py-runner-macos
+            exe_path: dist/py-runner
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install SDL2 (Linux only)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            libsdl2-dev libsdl2-mixer-dev \
+            libsdl2-image-dev libsdl2-ttf-dev
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Build executable with PyInstaller
+        run: pyinstaller py-runner.spec
+
+      - name: Rename artifact
+        shell: bash
+        run: mv "${{ matrix.exe_path }}" "${{ matrix.artifact_name }}"
+
+      - name: Upload executable to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.artifact_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

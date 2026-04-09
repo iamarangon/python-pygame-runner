@@ -34,12 +34,6 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect:
             self.rect.x = int(self.x)
 
-    def render(self, surface: pygame.Surface) -> None:
-        if self.image:
-            surface.blit(self.image, self.rect)
-        else:
-            pygame.draw.rect(surface, COLORS["red"], self.rect)
-
 
 class GroundEnemy(Enemy):
     def __init__(self, x: int) -> None:
