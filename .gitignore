@@ -13,6 +13,11 @@ venv/
 # Local Saves / Ignored Data
 data/
 
+# PyInstaller Build Artifacts
+dist/
+build/
+*.egg-info/
+
 # Agent Context & Memory
 .agent/
 AGENTS.md

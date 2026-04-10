@@ -58,8 +58,8 @@ def test_play_state_collisions(dummy_surface, monkeypatch):
     game = Game()
     play = PlayState(game)
     # Mock spawner to create a collision
-    play.spawner.spawn_pattern(1)
-    play.spawner.enemies[0].rect = play.player.rect.copy()
+    play.spawner.spawn(1, play.obstacle_group)
+    play.obstacle_group.sprites()[0].rect = play.player_group.sprite.rect.copy()
     
     play.check_collisions()
     

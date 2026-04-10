@@ -1,12 +1,12 @@
 # src/states/pause_state.py
 import pygame
 from src.states.state import State
-from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT, COLORS
+from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT, COLORS, PAUSE_COUNTDOWN
 
 class PauseState(State):
     def __init__(self, game):
         super().__init__(game)
-        self.resume_timer = -1 # -1 means infinite pause, > 0 means counting down to resume
+        self.resume_timer = -1
 
     def enter_state(self):
         super().enter_state()
@@ -15,38 +15,34 @@ class PauseState(State):
         if self.resume_timer > 0:
             self.resume_timer -= dt
             if self.resume_timer <= 0:
-                self.exit_state() # return to play state
+                self.exit_state()
 
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.KEYDOWN:
-                # If paused indefinitely and not already counting down
                 if self.resume_timer == -1 and (event.key == pygame.K_SPACE or event.key == pygame.K_p):
-                    self.resume_timer = 3.0 # Start a 3-second countdown
+                    self.resume_timer = PAUSE_COUNTDOWN
 
     def render(self, surface):
-        # Draw the previous state if it exists
         if self.prev_state:
             self.prev_state.render(surface)
-            
+
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        overlay.fill(COLORS["overlay"]) # expects a 4-tuple (R, G, B, A)
+        overlay.fill(COLORS["overlay"])
         surface.blit(overlay, (0, 0))
 
         center_x = SCREEN_WIDTH // 2
-        
+
         if self.resume_timer > 0:
-            # Draw countdown
             count_str = str(int(self.resume_timer) + 1)
             count_surf = self.game.title_font.render(count_str, True, COLORS["white"])
             count_rect = count_surf.get_rect(center=(center_x, SCREEN_HEIGHT // 2))
             surface.blit(count_surf, count_rect)
         else:
-            # Draw Pause text
             pause_surf = self.game.title_font.render("PAUSED", True, COLORS["white"])
             pause_rect = pause_surf.get_rect(center=(center_x, SCREEN_HEIGHT // 2))
             surface.blit(pause_surf, pause_rect)
-            
+
             inst_surf = self.game.font.render("Press SPACE to Resume", True, COLORS["white"])
             inst_rect = inst_surf.get_rect(center=(center_x, SCREEN_HEIGHT // 2 + 50))
             surface.blit(inst_surf, inst_rect)

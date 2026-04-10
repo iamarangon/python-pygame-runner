@@ -3,14 +3,16 @@ import pytest
 import pygame
 import os
 
-# Set dummy video driver for headless testing before pygame init
+# Set dummy video and audio drivers for headless CI testing before pygame init
 os.environ["SDL_VIDEODRIVER"] = "dummy"
-# Set dummy audio driver for headless testing to avoid ALSA errors
 os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 @pytest.fixture(scope="session", autouse=True)
 def pygame_setup():
-    pygame.mixer.init()
+    try:
+        pygame.mixer.init()
+    except pygame.error:
+        pass  # CI boxes might lack an audio endpoint even with the dummy driver
     pygame.init()
     pygame.font.init()
     # Mocking the display to prevent a window from popping up

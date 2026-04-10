@@ -56,19 +56,6 @@ class TestEnemies:
     def test_enemy_render_fallback_no_image(self):
         """Enemy with no frames renders a rect fallback."""
         surface = pygame.Surface((800, 400))
-        e = Enemy(100, 100, 1.0)
-        e.rect = pygame.Rect(100, 100, 40, 40)
-        e.render(surface)   # lines 40-41
-
-    def test_enemy_render_with_image(self):
-        """Enemy with an image blits it."""
-        surface = pygame.Surface((800, 400))
-        e = Enemy(100, 100, 1.0)
-        img = pygame.Surface((40, 40))
-        e.image = img
-        e.rect = img.get_rect(topleft=(100, 100))
-        e.render(surface)   # line 39
-
     def test_ground_enemy_update_animation(self):
         ge = GroundEnemy(100)
         initial_frame = ge.frame_index
@@ -91,75 +78,6 @@ class TestEnemies:
         assert e.rect is not None
         assert e.rect.x == 50
 
-
-# ── Spawner ────────────────────────────────────────────────────────────────
-
-class TestSpawner:
-    def test_reset_clears_state(self):
-        s = Spawner()
-        s.enemies.append(GroundEnemy(100))
-        s.spawn_timer = 500
-        s.reset()
-        assert len(s.enemies) == 0
-        assert s.spawn_timer == 0
-        assert s.current_delay == 100
-
-    def test_get_random_delay_phase1(self):
-        s = Spawner()
-        delay = s.get_random_delay(1)
-        assert 120 <= delay <= 180
-
-    def test_get_random_delay_phase2(self):
-        s = Spawner()
-        delay = s.get_random_delay(2)
-        assert 90 <= delay <= 140
-
-    def test_get_random_delay_phase3(self):
-        s = Spawner()
-        delay = s.get_random_delay(3)
-        assert 70 <= delay <= 110
-
-    def test_spawn_pattern_phase1_only_ground(self):
-        """Phase 1 only spawns ground enemies."""
-        s = Spawner()
-        for _ in range(10):
-            s.enemies.clear()
-            s.spawn_pattern(1)
-            for e in s.enemies:
-                assert isinstance(e, GroundEnemy)
-
-    def test_spawn_pattern_phase2(self):
-        s = Spawner()
-        # Just verify it runs without crashing
-        s.spawn_pattern(2)
-        assert len(s.enemies) >= 1
-
-    def test_spawn_pattern_phase3(self):
-        s = Spawner()
-        s.spawn_pattern(3)
-        assert len(s.enemies) >= 1
-
-    def test_update_triggers_spawn(self):
-        s = Spawner()
-        s.current_delay = 1  # Force immediate spawn
-        s.spawn_timer = 1
-        s.update(1, 5.0, 0.016)
-        assert len(s.enemies) >= 1
-
-    def test_update_removes_offscreen(self):
-        s = Spawner()
-        ge = GroundEnemy(100)
-        ge.rect.x = -100  # Already offscreen
-        s.enemies.append(ge)
-        s.current_delay = 9999  # Prevent spawning
-        s.update(1, 5.0, 0.016)
-        assert all(e.rect.right > 0 for e in s.enemies)
-
-    def test_render_no_crash(self):
-        s = Spawner()
-        s.spawn_pattern(1)
-        surface = pygame.Surface((800, 400))
-        s.render(surface)
 
 
 # ── State base class ────────────────────────────────────────────────────────

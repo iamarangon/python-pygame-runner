@@ -1,13 +1,16 @@
+# main.py
 import pygame
 import sys
 from src.core.game import Game
 
-def main():
+def main() -> None:
     pygame.init()
     pygame.font.init()
-    
-    # Check if a custom audio mixer initialization is needed, otherwise pygame.init() covers it.
-    
+    try:
+        pygame.mixer.init()
+    except pygame.error:
+        pass
+
     game = Game()
     try:
         game.run()
