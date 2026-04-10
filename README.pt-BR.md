@@ -1,22 +1,38 @@
 # Py-Runner 🦅
 
-Um *endless runner* 2D em ritmo acelerado e com dificuldade progressiva, desenvolvido em **Python** e **Pygame-CE**. Corra, pule e deslize através de um mundo com rolagem infinita enquanto desvia de inimigos terrestres e aéreos.
+Um *endless runner* 2D com dificuldade progressiva, desenvolvido em **Python** e **Pygame-CE**.
+Corra, pule e desvie de inimigos terrestres e aéreos num mundo com rolagem infinita.
 
 ![Python](https://img.shields.io/badge/Python-3.14+-blue.svg)
 ![Pygame-CE](https://img.shields.io/badge/Pygame--CE-2.5.7-green.svg)
-![Tests](https://img.shields.io/badge/Pytest-Coverage%2097%25-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-80%20passando%20%7C%2096%25%20cobertura-brightgreen)
+![CI](https://img.shields.io/badge/CI-GitHub%20Actions-black)
 
 ---
 
-## 🎮 Funcionalidades do Jogo
+## 🎮 Mecânicas do Jogo
 
-* **Dificuldade Progressiva:** O jogo é dividido em três fases consecutivas. Conforme você sobrevive por mais tempo, o motor global de rolagem do chão acelera levemente até culminar em sua velocidade máxima perigosa.
-* **Física & Inércia ("Momentum"):** Controle seu personagem com configurações simuladas de peso e gravidade. Você pode saltar dos obstáculos, e utilizar a mecânica de *Fast-Fall* (Queda Rápida) para cortar velozmente a gravidade e deslizar instantaneamente por baixo de mosquitos aéreos que se aproximam.
-* **Sistema de Pontuação de 3 Níveis:** Configuração global escalável entre 3 desafios (`Easy`, `Normal` e `Hard`). O Recorde de cada dificuldade é perfeitamente filtrado em listas puras localizadas através de um sistema unificado salvo pelo `config.json` no computador.
-* **Ambiente em Paralaxe:** O fundo do seu Menu Principal roda nativamente a engine base desconectada, permitindo que imensas nuvens contornem sua vista suavemente no plano de fundo. Dentro da rotina do jogo, a terra entra no loop junto de uma nova textura, conectando as distâncias em um paralaxe belíssimo.
-* **Opções Audiovisuais Persistentes:** O estado do jogo integra o *Mixer* para ler nativamente as Opções navegáveis pelo usuário, travando escolhas e o Volume Master.
+- **3 Fases de Dificuldade Progressiva:** A velocidade de rolagem aumenta suavemente ao longo de três fases. Sobreviva o suficiente e o mundo se torna implacável.
+- **Física & Inércia:** Pule, faça *Fast-Fall* no ar ou abaixe para desviar de inimigos aéreos. A gravidade é calibrada para um controle responsivo e satisfatório.
+- **Placar de 3 Níveis:** Pontuações são registradas separadamente por dificuldade (`Easy`, `Normal`, `Hard`) e persistem entre sessões via `data/scores.json`.
+- **Configurações Persistentes:** Volume e dificuldade são salvos automaticamente via `data/config.json`.
+- **Ambiente em Paralaxe:** Rolagem infinita em dupla camada (céu e chão), com simulação de nuvens separada no menu principal.
 
-## 🛠️ Instalação & Configuração
+---
+
+## 🚀 Download & Jogar
+
+> Baixe o executável mais recente para a sua plataforma diretamente na aba [**Releases**](../../releases) — sem precisar instalar Python.
+
+| Plataforma | Arquivo |
+|------------|---------|
+| Windows    | `py-runner-windows.exe` |
+| Linux      | `py-runner-linux` |
+| macOS      | `py-runner-macos` |
+
+---
+
+## 🛠️ Executar pelo Código-Fonte
 
 1. **Clone o repositório:**
    ```bash
@@ -24,61 +40,77 @@ Um *endless runner* 2D em ritmo acelerado e com dificuldade progressiva, desenvo
    cd python-pygame-runner
    ```
 
-2. **Crie um ambiente virtual (VENV - Recomendado):**
+2. **Crie um ambiente virtual:**
    ```bash
    python -m venv .venv
-   
+
    # Windows:
    .\.venv\Scripts\activate
-   # Linux/Mac:
+   # Linux/macOS:
    source .venv/bin/activate
    ```
 
-3. **Instale as Bibliotecas:**
+3. **Instale as dependências de execução:**
    ```bash
    pip install -r requirements.txt
    ```
-   *(Importante: sempre prefira e confira se está baixando ativamente o pacote Community Edition - `pygame-ce` na documentação do projeto se houver problemas de execução de rotinas, ele melhora consideravelmente o suporte C+ interno para hardware).*
 
-4. **Inicie sua rodada!**
+4. **Jogar:**
    ```bash
    python main.py
    ```
 
 ---
 
-## 🕹️ Controles Principais
+## 🕹️ Controles
 
 | Ação | Tecla(s) |
 | :--- | :--- |
-| **Pular** | `Seta pra CIMA` (UP) ou `ESPAÇO` |
-| **Abaixar / Queda Rápida** | `Seta pra BAIXO` (DOWN) |
-| **Navegar nos Menus** | `CIMA` / `BAIXO` / `ESQUERDA` / `DIREITA` |
-| **Confirmar Escolha** | `ENTER` ou `ESPAÇO` |
-| **Limpar Tabelas e Pontuações** | `C` (Isso dentro da Tela Principal de Placar) |
-| **Pausar e Beber Água** | `P` ou `ESC` (Isso ocorre apenas in-game) |
+| **Pular** | `ESPAÇO` ou `↑` |
+| **Abaixar / Queda Rápida** | `↓` |
+| **Navegar nos Menus** | `↑` / `↓` / `←` / `→` |
+| **Confirmar** | `ENTER` ou `ESPAÇO` |
+| **Pausar** | `P` ou `ESC` |
+| **Limpar Placar** | `C` (tela de Leaderboard) |
 
 ---
 
-## 🧩 Arquitetura do Software
+## 🧩 Arquitetura
 
-O **Py-Runner** se pauta com base nos padrões Orientados a Objetos construindo um clássico empilhamento comportamental ("State Machine"):
-- **`src/core/game.py`**: A espinha central (App Loop) que re-escreve todos os nativos do backend `pygame.events` direcionando-os à classe atual.
-- **`src/states/`**: A isolação real da UI de cada instante com vida própria de renderização (Menu, Configurações, Jogo, Game Over, Sistema de Nome...).
-- **`src/core/resource_loader.py`**: Uma fábrica de carregamentos únicos instanciados (Singleton Cache). Nós lemos o seu HD lento exatas zero vezes durante o jogo! As texturas, sons e imagens PNG vão cruzar direto do seu arquivo binário pela máquina central subindo direto à sua Memória RAM. Sem lags!
-- **`tests/`**: Como manda a segurança, criamos uma rede inteira programada e injetável baseada em testes contínuos usando Pytest+MockHeadless. Seu pipeline de Deploy no Git jamais colapsará por conta de colisões em ambiente hostless que chamem a interface preta `set_mode()`.
-
----
-
-## 🚀 Próximos Passos (Refatoramento de Estrutura)
-
-O próximo ciclo iminente de código (Sprint) prevê o re-alinhamento da forma como o laço (Collision vs Graphics) acontece mudando o patamar pra popular Estrutura Oficial Pygame **"ClearCode"**:
-1. Portabilidade de todos scripts de atores (Entities) engatando eles estritamente como instâncias da classe nativa `pygame.sprite.Sprite`.
-2. Absorção total da interface manual e dos arrays das *list_combos* delegando inteiramente o controle populacional e de exclusão da memória ao empilhador C `pygame.sprite.Group` para focar especificamente no draw() mais seguro.
-3. Abandonar o cálculo de deltas contínuos customizados nas Spawns (calculando instantes de float-frame) pela pura interceptação nativa oficial ativando-se um `pygame.USEREVENT`. 
+| Camada | Descrição |
+|--------|-----------|
+| `main.py` | Ponto de entrada — inicializa o Pygame e inicia o loop |
+| `src/core/game.py` | Loop central — roteia eventos para o State ativo |
+| `src/states/` | Máquina de estados: Menu, Play, Pause, Game Over, Leaderboard, Options, Naming |
+| `src/entities/` | Entidades baseadas em Sprite: `Player`, `Enemy`, `Background` |
+| `src/core/spawner.py` | Injeta sprites de inimigos em Groups via timers `pygame.USEREVENT` |
+| `src/core/resource_loader.py` | Cache Singleton — carrega imagens, sons e fontes uma única vez |
+| `src/core/settings.py` | Constantes centrais: tela, física, dificuldade, timing |
+| `tests/` | 80 testes headless, 96% de cobertura — compatível com CI sem display ou áudio |
 
 ---
 
-*Tenha uma ótima partida!*
+## 🧪 Executar os Testes
+
+```bash
+pip install -r requirements-dev.txt
+pytest --cov=src tests/
+```
+
+---
+
+## 🙌 Créditos & Atribuições
+
+A estrutura de código inicial deste projeto foi desenvolvida seguindo o excelente tutorial do canal do YouTube **Clear Code**.
+- **Canal no YouTube:** [Clear Code](https://www.youtube.com/@ClearCode)
+- **Link do Tutorial:** [The ultimate introduction to Pygame](https://www.youtube.com/watch?v=AY9MnQ4x3zk&list=PLsIbpk0M-XAlhSR7Bc6B7ef5h_PWkNA2B&index=1&t=2319s)
+
+Todas as sprites e assets visuais utilizados neste projeto foram gentilmente disponibilizados no repositório dele.
+- **Repositório do Projeto:** [UltimatePygameIntro](https://github.com/clear-code-projects/UltimatePygameIntro)
+- **Perfil do Clear Code no GitHub:** [clear-code-projects](https://github.com/clear-code-projects)
+
+---
+
+*Boa sorte batendo o recorde!*
 <br>
-**Criado por Italo Marangon.**
+**Refatorado e Expandido por Italo Marangon.**

@@ -1,46 +1,61 @@
 # Py-Runner 🦅
 
-A fast-paced, progressively scaling 2D endless runner built with **Python** and **Pygame-CE**. Run, jump, and slide through an infinite scrolling world while dodging terrestrial and aerial enemies. 
+A fast-paced, progressively scaling 2D endless runner built with **Python** and **Pygame-CE**.
+Run, jump, and duck through an infinite scrolling world while dodging ground and aerial enemies.
 
 ![Python](https://img.shields.io/badge/Python-3.14+-blue.svg)
 ![Pygame-CE](https://img.shields.io/badge/Pygame--CE-2.5.7-green.svg)
-![Tests](https://img.shields.io/badge/Pytest-Coverage%2097%25-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-80%20passing%20%7C%2096%25%20coverage-brightgreen)
+![CI](https://img.shields.io/badge/CI-GitHub%20Actions-black)
 
 ---
 
-## 🎮 Gameplay Features
+## 🎮 Gameplay
 
-* **Progressive Difficulty:** The game is divided into three consecutive phases. As you survive longer, the global scrolling engine accelerates smoothly up to its max speed.
-* **Physics & Momentum:** Control your character with customized gravity settings. You can leap out of danger, and use the *Fast-Fall* mechanic to aggressively slice through the air and immediately slide below incoming flying enemies.
-* **Triple-Tier Scoring:** Integrated global difficulty selections (`Easy`, `Normal`, and `Hard`). High scores are routed directly into designated partitions out of a local `config.json` file.
-* **Parallax Environment:** The main menu runs a separate detached cloud simulation, while the main game ties both the sky and the ground into an infinite, dual-layered parallax loop.
-* **Persistent Audiovisual Options:** Fully navigable graphical menus allowing instant SFX and Global Track volume adjustments.
+- **3 Phases of Progressive Difficulty:** Scroll speed ramps smoothly across three timed phases. Survive long enough and the world becomes relentless.
+- **Physics & Momentum:** Jump, Fast-Fall mid-air, or duck under aerial enemies. Gravity is tuned for responsive, satisfying control.
+- **Triple-Tier Leaderboard:** Scores are tracked separately per difficulty (`Easy`, `Normal`, `Hard`) and persist between sessions via a local `data/scores.json`.
+- **Persistent Settings:** Volume and difficulty are saved automatically between sessions via `data/config.json`.
+- **Parallax Environment:** Dual-layer infinite scrolling sky and ground, with a separate cloud simulation in the main menu.
 
-## 🛠️ Installation & Setup
+---
 
-1. **Clone the repository:**
+## 🚀 Download & Play
+
+> Download the latest pre-built executable for your platform from the [**Releases**](../../releases) page — no Python required.
+
+| Platform | File |
+|----------|------|
+| Windows  | `py-runner-windows.exe` |
+| Linux    | `py-runner-linux` |
+| macOS    | `py-runner-macos` |
+
+---
+
+## 🛠️ Run from Source
+
+1. **Clone:**
    ```bash
    git clone https://github.com/iamarangon/python-pygame-runner.git
    cd python-pygame-runner
    ```
 
-2. **Create a virtual environment (Recommended):**
+2. **Create a virtual environment:**
    ```bash
    python -m venv .venv
-   
+
    # Windows:
    .\.venv\Scripts\activate
-   # Linux/Mac:
+   # Linux/macOS:
    source .venv/bin/activate
    ```
 
-3. **Install Requirements:**
+3. **Install runtime dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
-   *(Ensure you use `pygame-ce` (Community Edition) instead of the standard `pygame` for massively improved runtime speeds and modern API support).*
 
-4. **Launch the Game!**
+4. **Play:**
    ```bash
    python main.py
    ```
@@ -51,34 +66,51 @@ A fast-paced, progressively scaling 2D endless runner built with **Python** and 
 
 | Action | Key(s) |
 | :--- | :--- |
-| **Jump** | `UP Arrow` or `SPACE` |
-| **Duck / Fast-Fall** | `DOWN Arrow` |
-| **Navigate Menus** | `UP` / `DOWN` / `LEFT` / `RIGHT` |
-| **Confirm Selection** | `ENTER` or `SPACE` |
-| **Clear Leaderboard** | `C` (On the Leaderboard Screen) |
-| **Pause Game** | `P` or `ESC` (During run) |
+| **Jump** | `SPACE` or `↑` |
+| **Duck / Fast-Fall** | `↓` |
+| **Navigate Menus** | `↑` / `↓` / `←` / `→` |
+| **Confirm** | `ENTER` or `SPACE` |
+| **Pause** | `P` or `ESC` |
+| **Clear Leaderboard** | `C` (Leaderboard screen) |
 
 ---
 
 ## 🧩 Architecture
 
-Py-Runner utilizes a tightly coupled, object-oriented State Machine:
-- **`src/core/game.py`**: The main game loop routing native `pygame.events` into the active State.
-- **`src/states/`**: Controls UI isolation (Menu, Options, Play, Game Over, Leaderboard, Naming).
-- **`src/core/resource_loader.py`**: A caching Singleton ensuring that PNGs, TTFs, and audio nodes are only loaded from the solid-state drive exactly once.
-- **`tests/`**: Includes a fully decoupled headless logic suite using Pytest and Mocks to ensure rendering logic doesn't crash CI pipelines.
+| Layer | Description |
+|-------|-------------|
+| `main.py` | Entry point — initializes Pygame and starts the Game loop |
+| `src/core/game.py` | Central game loop — routes events into the active State |
+| `src/states/` | State machine: Menu, Play, Pause, Game Over, Leaderboard, Options, Naming |
+| `src/entities/` | Sprite-based entities: `Player`, `Enemy`, `Background` |
+| `src/core/spawner.py` | Injects enemy sprites into Groups via `pygame.USEREVENT` timers |
+| `src/core/resource_loader.py` | Singleton asset cache — loads each image, sound, and font once |
+| `src/core/settings.py` | Central constants: screen, physics, difficulty, timing |
+| `tests/` | 80 headless tests, 96% coverage — fully compatible with CI (no display or audio device required) |
 
 ---
 
-## 🚀 Next Steps (Refactoring Roadmap)
+## 🧪 Run Tests
 
-The next major sprint encompasses migrating the custom collision and positional looping system into the standard **ClearCode Architecture**:
-1. Porting all Entities to inherit from native `pygame.sprite.Sprite`.
-2. Encapsulating actors into `pygame.sprite.Group` and `pygame.sprite.GroupSingle` to leverage native engine culling and rapid `.draw()` buffers.
-3. Transitioning the math-heavy `dt` spawner array loops into native `pygame.USEREVENT` triggers for frame-independent optimization. 
+```bash
+pip install -r requirements-dev.txt
+pytest --cov=src tests/
+```
+
+---
+
+## 🙌 Credits & Attributions
+
+The initial code structure was developed following the excellent tutorial by the **Clear Code** YouTube channel. 
+- **YouTube Channel:** [Clear Code](https://www.youtube.com/@ClearCode)
+- **Tutorial Link:** [The ultimate introduction to Pygame](https://www.youtube.com/watch?v=AY9MnQ4x3zk&list=PLsIbpk0M-XAlhSR7Bc6B7ef5h_PWkNA2B&index=1&t=2319s)
+
+All visual sprites and assets used in this project are kindly provided by his repository.
+- **Project Repository:** [UltimatePygameIntro](https://github.com/clear-code-projects/UltimatePygameIntro)
+- **Clear Code GitHub Profile:** [clear-code-projects](https://github.com/clear-code-projects)
 
 ---
 
 *Good luck chasing the High Score!*
 <br>
-**Created by Italo Marangon.**
+**Refactored & Expanded by Italo Marangon.**

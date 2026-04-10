@@ -21,9 +21,9 @@ class Game:
 
         self.update_system_volume()
 
-        bg_music_path = os.path.join(self.rl.base_path, "sounds", "music.wav")
+        music_path = os.path.join(self.rl.base_path, "sounds", "music.wav")
         try:
-            pygame.mixer.music.load(bg_music_path)
+            pygame.mixer.music.load(music_path)
             pygame.mixer.music.play(-1)
         except pygame.error:
             pass
