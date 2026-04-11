@@ -23,3 +23,5 @@ build/
 AGENTS.md
 GEMINI.md
 .gemini/
+
+.gitignore
